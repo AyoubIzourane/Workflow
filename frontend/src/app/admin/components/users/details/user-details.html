@@ -1,0 +1,88 @@
+<div class="grid" *ngIf="user">
+	<div class="col-12 md:col-6">
+		<div class="card p-fluid">
+			<h5>User information</h5>
+            <div class="p-formgrid grid">
+				<div class="field col">
+					<label>First Name</label>
+					<input pInputText  type="text" [value]="user.firstname" [disabled]="true"/>
+				</div>
+				<div class="field col">
+					<label>Last Name</label>
+					<input pInputText  type="text" [value]="user.lastname" [disabled]="true"/>
+				</div>
+			</div>
+			<div class="field">
+				<label>Date of birth</label>
+				<input pInputText  type="text" [value]="user.dateOfBirth" [disabled]="true"/>
+			</div>
+            <div class="p-formgrid grid">
+                <div class="field col">
+				<label htmlFor="age">Age</label>
+				<input pInputText type="text" [value]="user.age" [disabled]="true"/>
+		    	</div>
+                <div class="field col">
+                    <label htmlFor="age">Gender</label>
+                    <input pInputText type="text" [value]="user.gender" [disabled]="true"/>
+                    </div>
+            </div>
+		</div>
+	</div>
+
+	<div class="col-12 md:col-6">
+		<div class="card p-fluid">
+			<h5>Contact information</h5>
+            <div class="p-formgrid grid">
+				<div class="field col">
+					<label>Telephone</label>
+					<input pInputText  type="text" [value]="user.telephone" [disabled]="true"/>
+				</div>
+				<div class="field col">
+					<label>Telephone</label>
+					<input pInputText  type="text" [value]="user.lastname" [disabled]="true"/>
+				</div>
+			</div>
+			<div class="field">
+				<label>Email</label>
+				<input pInputText  type="text" [value]="user.email" [disabled]="true"/>
+			</div>
+			<div class="field">
+				<label htmlFor="age">Address</label>
+				<input pInputText type="text" [value]="user.address" [disabled]="true"/>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="col-12">
+		<div class="card">
+			<h5>Work information</h5>
+			<div class="p-fluid p-formgrid grid">
+				<div class="field col-12 md:col-6">
+					<label htmlFor="firstname3">Position</label>
+					<input pInputText type="text" [value]="user.position" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="lastname3">Departement</label>
+					<input pInputText id="lastname3" type="text" [value]="user.department" [disabled]="true"/>
+				</div>
+				<div class="field col-12">
+					<label htmlFor="address">Address</label>
+					<input pInputTextarea id="address" rows="4" [value]="user.address" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="city">City</label>
+					<input pInputText id="city" type="text" [value]="user.city" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-3">
+					<label htmlFor="zip">Zip</label>
+					<input pInputText id="zip" type="text" [value]="user.zip" [disabled]="true"/>
+				</div>
+                <div class="field col-12 md:col-3">
+					<label htmlFor="zip2">Role</label>
+					<input pInputText id="zip2" type="text" [value]="user.role" [disabled]="true"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

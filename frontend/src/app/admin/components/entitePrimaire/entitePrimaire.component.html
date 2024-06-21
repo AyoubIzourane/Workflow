@@ -1,0 +1,177 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button
+                            pButton
+                            pRipple
+                            label="New"
+                            icon="pi pi-plus"
+                            class="p-button-success mr-2"
+                            (click)="openNew()"
+                        ></button>
+                        <button
+                            pButton
+                            pRipple
+                            label="Delete"
+                            icon="pi pi-trash"
+                            class="p-button-danger"
+                            (click)="deleteSelectedEntitePrimaireList()"
+                            [disabled]="!selectedEntitePrimaireList || !selectedEntitePrimaireList.length"
+                        ></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <button
+                        pButton
+                        pRipple
+                        label="Export"
+                        icon="pi pi-upload"
+                        class="p-button-help"
+                        (click)="dt.exportCSV()"
+                    ></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table
+                #dt
+                [value]="entitePrimaireList"
+                [columns]="cols"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['prefixe', 'libelle', 'startwith', 'currentvalue', 'databaseEntity']"
+                [paginator]="true"
+                [rowsPerPageOptions]="rowsPerPageOptions"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedEntitePrimaireList"
+                selectionMode="multiple"
+                [rowHover]="true"
+                dataKey="id"
+                [exportFilename]="exportName"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <h5 class="m-0">List of EntitePrimaire</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="Search..."
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="prefixe">
+                            Prefixe <p-sortIcon field="prefixe"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="libelle">
+                            Libelle <p-sortIcon field="libelle"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="startwith">
+                            Start With <p-sortIcon field="startwith"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="currentvalue">
+                            Current Value <p-sortIcon field="currentvalue"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="databaseEntity">
+                            Database Entity <p-sortIcon field="databaseEntity"></p-sortIcon>
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-entitePrimaire let-columns="columns">
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="entitePrimaire"></p-tableCheckbox>
+                        </td>
+                        <td>{{ entitePrimaire.prefixe }}</td>
+                        <td>{{ entitePrimaire.libelle }}</td>
+                        <td>{{ entitePrimaire.startwith }}</td>
+                        <td>{{ entitePrimaire.currentvalue }}</td>
+                        <td>{{ entitePrimaire.databaseEntity }}</td>
+
+                        <td>
+                            <div class="flex">
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-eye"
+                                    class="p-button-rounded p-button-info mr-2"
+                                    (click)="viewEntitePrimaire(entitePrimaire.id)"
+                                ></button>
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editEntitePrimaire(entitePrimaire)"
+                                ></button>
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-trash"
+                                    class="p-button-rounded p-button-warning"
+                                    (click)="deleteEntitePrimaire(entitePrimaire.id)"
+                                ></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- New EntitePrimaire Dialog -->
+        <p-dialog [(visible)]="entitePrimaireDialog" [style]="{ width: '450px' }" header="Entite Primaire Details" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <!-- EntitePrimaire Details Form -->
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="prefixe">Prefixe</label>
+                        <input type="text" pInputText id="prefixe" [(ngModel)]="entitePrimaire.prefixe" />
+                    </div>
+                    <div class="field col">
+                        <label for="libelle">Libelle</label>
+                        <input type="text" pInputText id="libelle" [(ngModel)]="entitePrimaire.libelle" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="databaseEntity">Database Entity</label>
+                    <p-dropdown [options]="databaseEntityOptions" [(ngModel)]="entitePrimaire.databaseEntity" placeholder="Select Database Entity" [showClear]="true"></p-dropdown>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !entitePrimaire.databaseEntity">Database Entity is required.</small>
+                  </div>
+
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="startwith">Start With</label>
+                        <input type="number" pInputText id="startwith" [(ngModel)]="entitePrimaire.startwith" />
+                    </div>
+
+                </div>
+
+                
+                  
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="submitEntitePrimaire()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Delete EntitePrimaire Dialog -->
+    

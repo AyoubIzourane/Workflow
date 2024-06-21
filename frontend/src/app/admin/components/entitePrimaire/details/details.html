@@ -1,0 +1,39 @@
+<div class="grid" *ngIf="entitePrimaire">
+
+	<div class="col-12">
+		<div class="card">
+			<h5>Entite primaire information</h5>
+			
+			<div class="p-fluid p-formgrid grid">
+				<div class="field col-12 md:col-6">
+					<label htmlFor="address">Code</label>
+					<input pInputTextarea id="address" rows="4" [value]="entitePrimaire.startwith" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="zip">Database Entity</label>
+					<input pInputText id="zip" type="text" [value]="entitePrimaire.databaseEntity" [disabled]="true"/>
+				</div>
+
+				<div class="field col-12 md:col-6">
+					<label htmlFor="firstname3">Prefixe</label>
+					<input pInputText type="text" [value]="entitePrimaire.prefixe" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="lastname3">Libelle</label>
+					<input pInputText id="lastname3" type="text" [value]="entitePrimaire.libelle" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="address">Start with</label>
+					<input pInputTextarea id="address" rows="4" [value]="entitePrimaire.startwith" [disabled]="true"/>
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="city">Current value</label>
+					<input pInputText id="city" type="text" [value]="entitePrimaire.currentvalue" [disabled]="true"/>
+				</div>
+			
+					
+
+			</div>
+		</div>
+	</div>
+</div>

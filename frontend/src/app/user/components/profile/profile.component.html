@@ -1,0 +1,74 @@
+<form (ngSubmit)="onSubmit()" *ngIf="user">
+  <div class="grid">
+    <div class="col-12 md:col-6">
+      <div class="card p-fluid">
+        <h5>User information</h5>
+        <div class="p-formgrid grid">
+          <div class="field col">
+            <label>First Name</label>
+            <input pInputText type="text" [(ngModel)]="user.firstname" name="firstname" />
+          </div>
+          <div class="field col">
+            <label>Last Name</label>
+            <input pInputText type="text" [(ngModel)]="user.lastname" name="lastname" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Date of birth</label>
+          <input pInputText type="text" [(ngModel)]="user.dateOfBirth" name="dateOfBirth" />
+        </div>
+        <div class="p-formgrid grid">
+          <div class="field col">
+            <label>Gender</label>
+            <p-dropdown [options]="genders" [(ngModel)]="user.gender" [placeholder]="user.gender ? user.gender : 'Select Gender'" [showClear]="true"></p-dropdown>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <div class="card p-fluid">
+        <h5>Contact information</h5>
+        <div class="p-formgrid grid">
+          <div class="field col">
+            <label>Telephone</label>
+            <input pInputText type="text" [(ngModel)]="user.telephone" name="telephone" />
+          </div>
+          <div class="field col">
+            <label>Email</label>
+            <input pInputText type="text" [(ngModel)]="user.email" name="email" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Address</label>
+          <input pInputText type="text" [(ngModel)]="user.address" name="address" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <h5>Work information</h5>
+        <div class="p-fluid p-formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label>Position</label>
+            <input pInputText type="text" [(ngModel)]="user.position" name="position" />
+          </div>
+          <div class="field col-12 md:col-6">
+            <label>Department</label>
+            <input pInputText type="text" [(ngModel)]="user.department" name="department" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <button type="submit" pButton label="Save Changes"></button>
+    </div>
+  </div>
+</form>
+
+<div *ngIf="!user">
+  <p>Loading user information...</p>
+</div>

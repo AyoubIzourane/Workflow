@@ -1,0 +1,343 @@
+<div class="grid" *ngIf="version">
+
+	<div class="col-12">
+		<div class="card">
+			<h5>Version {{version.versionNumber}}</h5>
+			
+			<div class="p-fluid p-formgrid grid">
+				<div class="field col-12 md:col-6">
+					<label htmlFor="address">Status</label>
+					<input pInputTextarea id="address" rows="4" [value]="version.workflow?.status || 'brouillon'" [disabled]="true"/>
+
+				</div>
+				<div class="field col-12 md:col-6">
+					<label htmlFor="zip">Workflow</label>
+					<input pInputText id="zip" type="text" [value]="version.workflow?.titre"  [disabled]="true"/>
+				</div>
+				<div class="field col-12 ">
+					<label htmlFor="lastname3">Description</label>
+					<textarea 
+					rows="8"
+					cols="30" 
+					pInputTextarea 
+					[value]="version.workflow?.description"
+					[disabled]="true">
+				</textarea>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+</div>
+
+<div class="grid">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="../../../../../assets/demo/js/flowchart.js"></script>
+	<script src="../../../../../assets/demo/js/index.js"></script>
+		<div class="col-12">
+			<div class="card">
+				<p-toast></p-toast>
+				<div id="sample" onload="init()">
+					<button
+					pButton
+					pRipple
+					label="Print"
+					icon="pi pi-print"
+					class="p-button-contrast mr-2"
+					(click)="printDiagram()"
+				></button>
+					<div style="width: 100%; display: flex; justify-content: space-between">
+					  <span
+						style="
+						  display: inline-block;
+						  vertical-align: top;
+						  padding: 5px;
+						  width: 100px;
+						"
+					  >
+						<div
+						  id="myPaletteDiv"
+						  style="
+							border: solid 1px gray;
+							background-color: #606060;
+							height: 720px;
+							width: 250px;
+							position: relative;
+						  "
+						></div>
+					  </span>
+			  
+					  <span
+						style="
+						  display: inline-block;
+						  vertical-align: top;
+						  padding: 5px;
+						  width: 80%;
+						"
+					  >
+						<div
+						  id="myDiagramDiv"
+						  style="border: solid 1px gray; 
+						  height: 720px;
+						  background-color: #606060;"
+						></div>
+					  </span>
+					</div>
+			
+			<button
+			pButton
+			pRipple
+			label="Save"
+			icon="pi pi-save"
+			class="p-button-success mr-2"
+			[disabled]="isSaveDisabled()"
+			(click)="saveWorkflow(version.id)"
+		></button>
+
+	<!--
+		<button
+		pButton
+		pRipple
+		label="Load"
+		icon="pi pi-cloud-upload"
+		class="p-button-help mr-2"
+		(click)="loadFromDatabase(version.id)"
+	></button>
+	-->
+
+					<textarea id="mySavedModel" style="width: 100%; height: 300px">
+
+					</textarea>
+				   
+				  </div>
+				  <link
+					href="https://fonts.googleapis.com/css?family=Lato:300,400,700&amp;swap"
+					rel="stylesheet"
+					type="text/css"
+				  />
+				  <button
+				  pButton
+				  pRipple
+				  label="SVG"
+				  icon="pi pi-image"
+				  class="p-button-info mr-2"
+				  (click)="makeSVG()"
+			  ></button>
+				 
+				  <div id="SVGArea"></div>
+				  </div>
+				   
+		</div>
+	</div>
+	
+	   <!-- Workflow Dialog -->
+	   <p-dialog [(visible)]="Dialog" [style]="{ width: '450px' }" 
+	   header="Node Details" [modal]="true" class="p-fluid">
+		<ng-template pTemplate="content">
+		  <div *ngIf="shapeDetails">
+			<!--
+			<p>Category: {{ shapeDetails.category }} ¶ Key: {{ shapeDetails.key }} ¶ Loc: {{ shapeDetails.loc }}</p>
+			-->
+			<ng-container [ngSwitch]="shapeDetails.category">
+			  <div *ngSwitchCase="'Approbation'">
+				<h3>Approbation</h3>
+				<div class="field">
+					<label >Titre</label>
+					<input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+				<div class="field">
+					<label for="approbateur">Approbateur</label>
+					<p-dropdown 
+					  [options]="emailOptions" 
+					  [(ngModel)]="approbateur" 
+					  placeholder="Select Approbateur" 
+					  appendTo="body" 
+					  [showClear]="true">
+					  <ng-template let-option pTemplate="item">
+						{{ option }}
+					  </ng-template>
+					</p-dropdown>
+				  </div>
+				  
+				<div class="formgrid grid">
+					<div class="field col">
+					<label>Escalader</label>
+					<p-dropdown [options]="escaladerOptions" placeholder="Select Escalader" [(ngModel)]="escalader" appendTo="body" [showClear]="true">
+						<ng-template let-item pTemplate="item">
+						  {{ item.label }}
+						</ng-template>
+					  </p-dropdown>
+				</div>
+				<div class="field col">
+					<label >Delai Escalade (Jours)</label>
+					<input type="number" pInputText  [(ngModel)]="delaiEscalade" />
+				</div>
+				</div>
+
+			  </div>
+			  
+			  <div *ngSwitchCase="'AutoDecision'">
+				<h3>Automatique Decision</h3>
+				<div class="field">
+				  <label>Titre</label>
+				  <input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+				<div *ngFor="let link of filteredLinks; let i = index">
+				  <div class="field">
+					<label>Formulaire 
+					  <i pTooltip="&& || == != < > <= >="
+						 class="pi pi-question-circle"></i>
+					</label>
+					<textarea 
+					  rows="5"
+					  cols="30" 
+					  pInputTextarea 
+					  [(ngModel)]="formulaireValues[i]"
+					  (ngModelChange)="checkSyntax(i, formulaireValues[i])">>
+					</textarea>
+				  </div>
+				  <p *ngIf="syntaxMessages[i]" [ngClass]="{'syntax-valid': !syntaxErrors[i], 'syntax-invalid': syntaxErrors[i]}">
+					{{ syntaxMessages[i] }}
+				  </p>
+			  
+				  <div class="formgrid grid">
+					<div class="field col">
+					  <label>Résultat chercher</label>
+					  <p-dropdown [options]="resultatOptions" placeholder="Select Resultat" [(ngModel)]="resultat[i]" appendTo="body" [showClear]="true">
+						<ng-template let-item pTemplate="item">
+						  {{ item.label }}
+						</ng-template>
+					  </p-dropdown>
+					</div>
+			  
+					<div class="field col">
+					  <label>Next Node</label>
+					  <input type="text" pInputText [value]="getNodeTitle(link.to)" [disabled]="true" />
+					</div>
+				  </div>
+				  <hr/>
+				</div>
+			  <!--
+				<div class="field">
+				  <label>JSON Representation: of {{ linkCount }} Links:</label>
+				  <pre>{{ jsonRepresentation }}</pre>
+				</div>-->
+			  </div>
+			  
+			
+			  
+			  <div *ngSwitchCase="'ManuelleDecision'">
+				<h3>Manuelle Decision</h3>
+				<div class="field">
+					<label >Titre</label>
+					<input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+				<div class="field">
+					<label for="approbateur">Approbateur</label>
+					<p-dropdown 
+					  [options]="emailOptions" 
+					  [(ngModel)]="approbateur" 
+					  placeholder="Select Approbateur" 
+					  appendTo="body" 
+					  [showClear]="true">
+					  <ng-template let-option pTemplate="item">
+						{{ option }}
+					  </ng-template>
+					</p-dropdown>
+				  </div>
+				  
+				  <div class="formgrid grid">
+					<div class="field col">
+					<label>Escalader</label>
+					<p-dropdown [options]="escaladerOptions" placeholder="Select Escalader" [(ngModel)]="escalader" appendTo="body" [showClear]="true">
+						<ng-template let-item pTemplate="item">
+						  {{ item.label }}
+						</ng-template>
+					  </p-dropdown>
+				</div>
+				<div class="field col">
+					<label >Delai Escalade (Jours)</label>
+					<input type="number" pInputText  [(ngModel)]="delaiEscalade" />
+				</div>
+				</div>
+				<div class="field" >
+					
+				  </div>
+
+				  <div class="field" *ngFor="let choix of choix; let i = index">
+					<label>Choix {{ i + 1 }}</label>
+					<div class="p-inputgroup">
+						
+					<input type="text" pInputText [(ngModel)]="choix.value" />
+					<button pButton type="button" (click)="removeChoix(i)">Remove</button>
+					</div>
+				</div>
+
+				  <button pButton type="button" (click)="addChoix()">Ajouter choix</button>
+			  </div>
+	
+			  <div *ngSwitchCase="'ParalleleBranche'">
+				<h3>Parallele Branche</h3>
+				<div class="field">
+					<label >Titre</label>
+					<input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+			  </div>
+			
+			  <div *ngSwitchCase="'SousWorkflow'">
+				<h3>Sous Workflow</h3>
+				<div class="field">
+					<label >Titre</label>
+					<input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+				<div class="field">
+					<label for="titre">Workflow</label>
+					<p-dropdown 
+					  [options]="workflowOptions" 
+					  [(ngModel)]="workflow" 
+					  placeholder="Select Workflow" 
+					  appendTo="body" 
+					  [showClear]="true">
+					  <ng-template let-option pTemplate="item">
+						{{ option }}
+					  </ng-template>
+					</p-dropdown>
+				  </div>
+				  
+			  </div>
+	
+			  <div *ngSwitchCase="'LignesDeWorkflow'">
+				<h3>Lignes De Workflow</h3>
+				<div class="field">
+					<label >Titre</label>
+					<input type="text" pInputText id="titre" [(ngModel)]="titre" />
+				</div>
+				<div class="field">
+					<label for="titre">Workflow</label>
+					<p-dropdown 
+					  [options]="workflowOptions" 
+					  [(ngModel)]="workflow" 
+					  placeholder="Select Workflow" 
+					  appendTo="body" 
+					  [showClear]="true">
+					  <ng-template let-option pTemplate="item">
+						{{ option }}
+					  </ng-template>
+					</p-dropdown>
+				  </div>
+			  </div>
+
+			</ng-container>
+		  </div>
+		</ng-template>
+		<ng-template pTemplate="footer">
+			<button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+			<button pButton pRipple label="Save" 
+			icon="pi pi-check" class="p-button-text" 
+			[disabled]="syntaxErrors.includes(true)"
+			(click)="submitVersion()"
+			 ></button>
+		</ng-template>
+	</p-dialog>
+	
