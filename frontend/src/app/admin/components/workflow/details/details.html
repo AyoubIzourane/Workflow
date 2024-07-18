@@ -12,7 +12,7 @@
 				</div>
 				<div class="field col-12 md:col-6">
 					<label htmlFor="zip">Workflow</label>
-					<input pInputText id="zip" type="text" [value]="version.workflow?.titre"  [disabled]="true"/>
+					<input pInputText id="zip" type="text" [value]="version?.workflow?.entitePrimaire?.databaseEntity" [disabled]="true" />
 				</div>
 				<div class="field col-12 ">
 					<label htmlFor="lastname3">Description</label>
@@ -187,19 +187,31 @@
 				  <div class="field">
 					<label>Formulaire 
 					  <i pTooltip="&& || == != < > <= >="
-						 class="pi pi-question-circle"></i>
+						class="pi pi-question-circle"></i>
 					</label>
-					<textarea 
-					  rows="5"
-					  cols="30" 
-					  pInputTextarea 
-					  [(ngModel)]="formulaireValues[i]"
-					  (ngModelChange)="checkSyntax(i, formulaireValues[i])">>
-					</textarea>
+					<!-- Textarea with overlay dropdown -->
+					<div class="textarea-wrapper">
+					  <textarea 
+						id="formulaireTextarea{{i}}"
+						rows="5"
+						cols="30" 
+						pInputTextarea 
+						[(ngModel)]="formulaireValues[i]"
+						(ngModelChange)="checkSyntax(i, formulaireValues[i])"
+						(keyup)="onInputChange(formulaireValues[i], i)"></textarea>
+					  <!-- Dropdown to select columns -->
+					  <div class="column-dropdown">
+						<select [(ngModel)]="selectedColumn" (change)="onColumnSelect(selectedColumn, i)">
+						  <option value="">Select a column</option>
+						  <option *ngFor="let column of columns" [value]="column">{{ column }}</option>
+						</select>
+					  </div>
+					  
+					</div>
+					<p *ngIf="syntaxMessages[i]" [ngClass]="{'syntax-valid': !syntaxErrors[i], 'syntax-invalid': syntaxErrors[i]}">
+					  {{ syntaxMessages[i] }}
+					</p>
 				  </div>
-				  <p *ngIf="syntaxMessages[i]" [ngClass]="{'syntax-valid': !syntaxErrors[i], 'syntax-invalid': syntaxErrors[i]}">
-					{{ syntaxMessages[i] }}
-				  </p>
 			  
 				  <div class="formgrid grid">
 					<div class="field col">
@@ -218,14 +230,7 @@
 				  </div>
 				  <hr/>
 				</div>
-			  <!--
-				<div class="field">
-				  <label>JSON Representation: of {{ linkCount }} Links:</label>
-				  <pre>{{ jsonRepresentation }}</pre>
-				</div>-->
 			  </div>
-			  
-			
 			  
 			  <div *ngSwitchCase="'ManuelleDecision'">
 				<h3>Manuelle Decision</h3>

@@ -5,14 +5,8 @@ import { AppRoutingModule} from './app-routing.module';
 import { AppLayoutModule as AdminAppLayoutModule} from './admin/bar/app.layout.module';
 import { AppLayoutModule as UserAppLayoutModule} from './user/bar/app.layout.module';
 import { NotfoundComponent as  AdminNotfoundComponent} from './PageNotFound/notfound/notfound.component';
-import { NotfoundComponent as  UserNotfoundComponent} from './user/components/notfound/notfound.component';
-import { ProductService } from './demo/service/product.service';
-import { CountryService } from './demo/service/country.service';
-import { CustomerService } from './demo/service/customer.service';
-import { EventService } from './demo/service/event.service';
 import { IconService } from './demo/service/icon.service';
 import { NodeService } from './demo/service/node.service';
-import { PhotoService } from './demo/service/photo.service';
 
 
 import { CommonModule } from '@angular/common';
@@ -31,7 +25,7 @@ import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
-        AppComponent, AdminNotfoundComponent, UserNotfoundComponent
+        AppComponent, AdminNotfoundComponent
     ],
     imports: [
         AppRoutingModule,
@@ -53,8 +47,7 @@ import { FormsModule } from '@angular/forms';
     ],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
-        CountryService, CustomerService, EventService, IconService, NodeService,
-        PhotoService, ProductService
+        IconService, NodeService,
     ],
     bootstrap: [AppComponent]
 })

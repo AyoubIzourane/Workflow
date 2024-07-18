@@ -36,5 +36,9 @@ export class EntitePrimaireService {
    getDatabaseTables(): Observable<string[]> {
     return this.http.get<string[]>(`${this.BASE_URL}/tables`);
   }
+
+  getTableColumns(tableName: string): Observable<{ column_name: string, data_type: string }[]> {
+    return this.http.get<{ column_name: string, data_type: string }[]>(`${this.BASE_URL}/columns/${tableName}`);
+  }
   
 }

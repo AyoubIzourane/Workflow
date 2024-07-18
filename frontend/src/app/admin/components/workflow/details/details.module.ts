@@ -15,6 +15,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { ReactiveFormsModule } from '@angular/forms'; 
 
 @NgModule({
   declarations: [DetailsComponent],
@@ -22,6 +23,7 @@ import { TooltipModule } from 'primeng/tooltip';
     CommonModule,
     DetailsRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     InputTextModule,
     InputTextareaModule,
     ButtonModule,

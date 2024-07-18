@@ -1,3 +1,4 @@
+/*
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Image } from '../api/image';
@@ -14,3 +15,4 @@ export class PhotoService {
             .then(data => data);
     }
 }
+*/

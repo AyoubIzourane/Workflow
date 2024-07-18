@@ -23,11 +23,6 @@ import { AppLayoutComponent as UserAppLayoutComponent} from "./user/bar/app.layo
                 path: 'user', component: UserAppLayoutComponent,
                 children: [
                     { path: '', loadChildren: () => import('./user/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
-                    { path: 'profile', loadChildren: () => import('./user/components/profile/profile.module').then(m => m.ProfileModule) },
-                    { path: 'uikit', loadChildren: () => import('./user/components/uikit/uikit.module').then(m => m.UikitModule) },
-                    { path: 'utilities', loadChildren: () => import('./user/components/utilities/utilities.module').then(m => m.UtilitiesModule) },
-                    { path: 'blocks', loadChildren: () => import('./user/components/primeblocks/primeblocks.module').then(m => m.PrimeBlocksModule) },
-                    { path: 'pages', loadChildren: () => import('./user/components/pages/pages.module').then(m => m.PagesModule) },
 
                 ],
             },

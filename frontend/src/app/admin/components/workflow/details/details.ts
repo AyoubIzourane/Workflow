@@ -10,6 +10,8 @@ import { ElementService } from 'src/app/demo/service/element.service';
 import { UserService } from 'src/app/demo/service/user.service';
 import { WorkflowService } from 'src/app/demo/service/workflow.service';
 import { Formulaire } from 'src/app/demo/interfaces/Formulaire';
+import { EntitePrimaireService } from 'src/app/demo/service/entitePrimaire.service';
+import { ColumnDetails } from 'src/app/demo/interfaces/ColumnDetails';
 
 declare function init(): void; // Declare the global init function
 declare const go: any;
@@ -46,16 +48,20 @@ export class DetailsComponent implements OnInit, OnDestroy {
   ModelJson: string = '';
   emailOptions: string[] = [];
   workflowOptions: string[] = [];
-
-  
+  columns: string[] = []; // Remove this line
+  showDropdown: boolean = false; // Flag to control dropdown visibility
+  selectedColumn: string = ''; // Property to hold selected column
+  textareaValues: string[] = []; 
   syntaxErrors: boolean[] = [];
   syntaxMessages: string[] = [];
+  tableColumns: ColumnDetails[] = []; // Add this line
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private versionService: VersionService,
     private workflowService: WorkflowService,
+    private entitePrimaireService : EntitePrimaireService,
     private nodeService: NodeService,
     private linkService: LinkService,
     private elementService: ElementService,
@@ -69,6 +75,8 @@ export class DetailsComponent implements OnInit, OnDestroy {
     this.escaladerSelection();
     this.loadEmailOptions();
     this.loadWorkflowOptions();
+    this.initializeTextareaValues();
+   
     init();
     (window as any).handleShapeClickFromJS = this.handleShapeClick.bind(this);
     this.autoSaveSubscription = interval(1000).subscribe(() => this.autoSave());
@@ -77,7 +85,10 @@ export class DetailsComponent implements OnInit, OnDestroy {
     const versionId = this.route.snapshot.paramMap.get('id');
     if (versionId) {
       this.loadFromDatabase(parseInt(versionId));
+      
     }
+
+    
   }
   
   
@@ -96,6 +107,13 @@ export class DetailsComponent implements OnInit, OnDestroy {
       this.versionService.findOne(detailsId).subscribe(
         res => {
           this.version = res;
+          const tableName = this.extractTableName();
+    console.log('tableName:', tableName);
+    if (tableName) {
+      this.fetchTableColumns(tableName);
+    } else {
+      console.error('Table name is undefined');
+    }
         },
         err => console.error(err)
       );
@@ -104,7 +122,15 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
   handleShapeClick(details: { category: string, key: string, loc: string }) {
     console.log("Clicked shape details:", details);
-    this.onSelectItem(details);
+
+    if (details.category == "Approbation" ||
+        details.category == "AutoDecision" ||
+        details.category == "ManuelleDecision" ||
+        details.category == "ParalleleBranche" ||
+        details.category == "SousWorkflow" ||
+        details.category == "LignesDeWorkflow") {
+      this.onSelectItem(details);
+    }
   }
 
   openNew() {
@@ -414,8 +440,6 @@ setJsonStructureAndTextarea(jsonStructure: any) {
   }
 }
 
-
-
   printDiagram() {
     const svgWindow: Window | null = window.open();
     if (!svgWindow) return;
@@ -461,23 +485,96 @@ setJsonStructureAndTextarea(jsonStructure: any) {
     try {
       this.syntaxErrors[index] = false;
       this.syntaxMessages[index] = 'Syntax is valid';
-
-      const expression = formulaireValue;
-
-      const conditionPattern = /(.+)\s*(==|!=|<=|>=|<|>)\s*(.+)/;
-
-      if (!conditionPattern.test(expression)) {
-        throw new Error('L\'expression doit être une condition valide (par exemple, variable == valeur)');
+  
+      const expression = formulaireValue.trim();
+  
+      // Pattern to match variables wrapped in $ and conditions
+      const conditionPattern = /\$(.+?)\$\s*(==|!=|<=|>=|<|>)\s*('.*?'|\d+)/g;
+  
+      let match;
+      let isValid = true;
+  
+      // Loop through all matches in the expression
+      while ((match = conditionPattern.exec(expression)) !== null) {
+        const variableName = match[1].trim();
+        const operator = match[2].trim();
+        const value = match[3].trim();
+  
+        const columnDetails = this.tableColumns.find(column => column.column_name === variableName);
+        if (!columnDetails) {
+          throw new Error(`Column '${variableName}' not found.`);
+        }
+  
+        // Validate value based on column data type
+        switch (columnDetails.data_type) {
+          case 'integer':
+          case 'smallint':
+          case 'bigint':
+          case 'serial':
+          case 'smallserial':
+          case 'bigserial':
+            if (!/^-?\d+$/.test(value)) {
+              isValid = false;
+              throw new Error(`Invalid value for '${variableName}'. Expected an integer.`);
+            }
+            break;
+          case 'real':
+          case 'double precision':
+          case 'numeric':
+          case 'decimal':
+            if (!/^-?\d+(\.\d+)?$/.test(value)) {
+              isValid = false;
+              throw new Error(`Invalid value for '${variableName}'. Expected a numeric value.`);
+            }
+            break;
+          case 'character varying':
+          case 'varchar':
+          case 'character':
+          case 'char':
+          case 'text':
+            if (!(/^'.*'$/.test(value))) {
+              isValid = false;
+              throw new Error(`Invalid value for '${variableName}'. Expected a string enclosed in single quotes.`);
+            }
+            break;
+          case 'boolean':
+            if (!/^(true|false)$/.test(value.toLowerCase())) {
+              isValid = false;
+              throw new Error(`Invalid value for '${variableName}'. Expected a boolean value (true/false).`);
+            }
+            break;
+          case 'date':
+          case 'timestamp':
+          case 'timestamp without time zone':
+          case 'timestamp with time zone':
+            if (!/^'\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?'$/.test(value)) {
+              isValid = false;
+              throw new Error(`Invalid value for '${variableName}'. Expected a date or timestamp enclosed in single quotes.`);
+            }
+            break;
+          // Add more cases as needed for other data types
+          default:
+            // Handle other data types or provide a default behavior
+            throw new Error(`Unsupported data type '${columnDetails.data_type}' for column '${variableName}'.`);
+        }
       }
-
+  
+      // If no matches are found, it means the expression is invalid
+      if (!conditionPattern.exec(expression)) {
+        throw new Error('Invalid expression. Ensure it matches the pattern $variable$ operator value.');
+      }
+  
+      // Evaluate the expression to ensure it's syntactically correct
       new Function(`return ${expression}`);
+  
     } catch (e: unknown) {
       const error = e as Error;
       this.syntaxErrors[index] = true;
       this.syntaxMessages[index] = 'Syntax Error: ' + error.message;
     }
   }
-
+  
+  
 resultatSelection() {
   this.resultatOptions = [
     { label: 'True', value: true },
@@ -518,5 +615,51 @@ loadWorkflowOptions() {
     }
   );
 }
-  
+initializeTextareaValues() {
+  // Initialize textareaValues with empty strings
+  this.formulaireValues = this.formulaireValues.slice();
+}
+
+
+onInputChange(inputValue: string, index: number) {
+  this.formulaireValues[index] = inputValue;
+}
+
+private extractTableName(): string | undefined {
+  return this.version?.workflow?.entitePrimaire?.databaseEntity; // Adjust according to your actual structure
+}
+
+private fetchTableColumns(tableName: string) {
+  this.entitePrimaireService.getTableColumns(tableName).subscribe(
+    columns => {
+      // Update tableColumns with fetched column details
+      this.tableColumns = columns;
+      // Extract column names from the response
+      this.columns = columns.map(column => column.column_name); // Add this line if you still need the column names separately
+    },
+    error => {
+      console.error('Error fetching table columns:', error);
+    }
+  );
+}
+
+
+onColumnSelect(column: string, index: number) {
+  if (this.formulaireValues[index] === undefined) {
+    this.formulaireValues[index] = '';
+  }
+
+  const columnWrapper = `$${column}$`;
+  this.formulaireValues[index] += columnWrapper;
+
+  // Hide dropdown after selection
+  this.showDropdown = false;
+
+  // Reset selectedColumn to force the change event even when the same column is selected consecutively
+  setTimeout(() => {  // Adding a slight delay to ensure ngModel is updated before resetting
+    this.selectedColumn = '';
+  }, 0);
+}
+
+
 }
